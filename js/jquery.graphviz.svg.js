@@ -232,14 +232,14 @@
     }
 
     // remove namespace from a[xlink:title]
-    $el.find('a').filter(function () { return $(this).attr('xlink:title') }).each(function () {
-      var $a = $(this)
-      $a.attr('title', $a.attr('xlink:title'))
-      $a.removeAttr('xlink:title')
-      if (options.tooltips) {
-        options.tooltips.init.call(this, that.$element)
-      }
-    })
+    // $el.find('a').filter(function () { return $(this).attr('xlink:title') }).each(function () {
+    //   var $a = $(this)
+    //   $a.attr('title', $a.attr('xlink:title'))
+    //   $a.removeAttr('xlink:title')
+    //   if (options.tooltips) {
+    //     options.tooltips.init.call(this, that.$element)
+    //   }
+    // })
   }
 
   GraphvizSvg.prototype.setupZoom = function() {
