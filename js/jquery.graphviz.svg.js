@@ -257,7 +257,7 @@
     $element.mousewheel(function (evt) {
         if (evt.shiftKey) {
           var factor = that.zoom.factor
-          factor *= Math.pow(1.05, evt.deltaY)
+          factor *= Math.pow(1.05, evt.deltaY * evt.deltaFactor / 84)
 
           // get pointer offset in view
           // ratio offset within svg
