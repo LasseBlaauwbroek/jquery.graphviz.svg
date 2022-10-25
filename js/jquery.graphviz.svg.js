@@ -184,8 +184,15 @@
     var that = this
     var options = this.options
 
+    // Set fillcolor of text to black if it is not set
+    $el.find('text').each(function () {
+      var $this = $(this)
+      if ($this.attr('fill') == undefined) {
+        $this.attr('fill', 'black')
+      }
+    })
     // save the colors of the paths, ellipses and polygons
-    $el.find('polygon, ellipse, path').each(function () {
+    $el.find('polygon, ellipse, path, text').each(function () {
       var $this = $(this)
       // save original colors
       $this.data('graphviz.svg.color', {
@@ -246,15 +253,12 @@
     var that = this
     var $element = this.$element
     var $svg = this.$svg
-    this.zoom = {width: $svg.attr('width'), height: $svg.attr('height'), percentage: null }
-    this.scaleView(100.0)
+    this.zoom = {width: $svg.width(), height: $svg.height(), factor: 1 }
     $element.mousewheel(function (evt) {
         if (evt.shiftKey) {
-          var percentage = that.zoom.percentage
-          percentage -= evt.deltaY * evt.deltaFactor
-          if (percentage < 100.0) {
-            percentage = 100.0
-          }
+          var factor = that.zoom.factor
+          factor *= Math.pow(1.05, evt.deltaY)
+
           // get pointer offset in view
           // ratio offset within svg
           var dx = evt.pageX - $svg.offset().left
@@ -266,7 +270,7 @@
           var px = evt.pageX - $element.offset().left
           var py = evt.pageY - $element.offset().top
 
-          that.scaleView(percentage)
+          that.scaleView(factor)
           // scroll so pointer is still in same place
           $element.scrollLeft((rx * $svg.width()) + 0.5 - px)
           $element.scrollTop((ry * $svg.height()) + 0.5 - py)
@@ -275,17 +279,12 @@
       })
   }
 
-  GraphvizSvg.prototype.scaleView = function(percentage) {
+  GraphvizSvg.prototype.scaleView = function(factor) {
     var that = this
     var $svg = this.$svg
-    $svg.attr('width', percentage + '%')
-    $svg.attr('height', percentage + '%')
-    this.zoom.percentage = percentage
-    // now callback to update tooltip position
-    var $everything = this.$nodes.add(this.$edges)
-    $everything.children('a[title]').each(function () {
-      that.options.tooltips.update.call(this)
-    })
+    $svg.attr('width', this.zoom.width * factor + 'px')
+    $svg.attr('height', this.zoom.height * factor + 'px')
+    this.zoom.factor = factor
   }
 
   GraphvizSvg.prototype.scaleNode = function($node) {
@@ -355,10 +354,7 @@
     var names = this.findEdge($node.attr('data-name'), testEdge, $edges)
     for (var i in names) {
       var n = this._nodesByName[names[i]]
-      if (!$retval.is(n)) {
-        $retval.push(n)
-        that.findLinked(n, includeEdges, testEdge, $retval)
-      }
+      $retval.push(n)
     }
   }
 
@@ -367,7 +363,7 @@
     $el.find('polygon, ellipse, path, text').each(function() {
       var $this = $(this)
       var color = $this.data('graphviz.svg.color')
-      if (color.fill && color.fill != "none" && $this.prop('tagName') != 'path') {
+      if (color.fill && color.fill != "none") {
         $this.attr('fill', getColor(color.fill, bg)) // don't set  fill if it's a path
       }
       if (color.stroke && color.stroke != "none") {
@@ -377,7 +373,7 @@
   }
 
   GraphvizSvg.prototype.restoreElement = function ($el) {
-    $el.find('polygon, ellipse, path').each(function() {
+    $el.find('polygon, ellipse, path, text').each(function() {
       var $this = $(this)
       var color = $this.data('graphviz.svg.color')
       if (color.fill && color.fill != "none") {
