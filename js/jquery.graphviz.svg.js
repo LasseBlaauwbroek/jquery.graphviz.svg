@@ -364,7 +364,7 @@
 
   GraphvizSvg.prototype.colorElement = function ($el, getColor) {
     var bg = this.$element.css('background')
-    $el.find('polygon, ellipse, path').each(function() {
+    $el.find('polygon, ellipse, path, text').each(function() {
       var $this = $(this)
       var color = $this.data('graphviz.svg.color')
       if (color.fill && color.fill != "none" && $this.prop('tagName') != 'path') {
